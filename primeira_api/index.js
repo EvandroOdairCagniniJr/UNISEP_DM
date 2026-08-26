@@ -26,11 +26,14 @@ app.post("/cadastrar",(request, response)=>{
     //console.log(cpf);
     //console.log(status);
 
-    if (cpf == undefined){
+    if (!cpf){
         return response.send("O campo CPF é obrigatório!");
     }
 
+    contador_id++
+
     data.push({
+        id: contador_id,
         nome,
         cpf,
         status
