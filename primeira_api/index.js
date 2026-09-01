@@ -4,7 +4,9 @@ const app =  new express();
 
 app.use(express.json());
 
+var contador_id = 1;
 var data = [{
+    id: 1,
     nome: "Evandro Jr",
     cpf: "50550550555",
     status: "true"
@@ -12,6 +14,24 @@ var data = [{
 
 app.get("/listar",(request, response)=>{
     return response.send(data);
+});
+
+app.get("/listar/:id",(request, response)=>{
+    const { id } = request.params;
+
+    const pessoa = data.filter((item)=>{
+        return item.id == id;
+    });
+
+    if (pessoa.length == 0){
+        response.status(400).send({
+            msg: `Pesssoa do código ${id} não encontrada!`
+        });
+    }
+
+    response.send(pessoa);
+
+   
 });
 
 app.post("/cadastrar",(request, response)=>{
@@ -26,8 +46,10 @@ app.post("/cadastrar",(request, response)=>{
     //console.log(cpf);
     //console.log(status);
 
-    if (!cpf){
-        return response.send("O campo CPF é obrigatório!");
+    if(!nome){
+        return response.status(300).send("O campo NOME é obrigatório!");
+    }else if (!cpf) {
+        return response.status(300).send("O campo CPF é obrigatório!");
     }
 
     contador_id++
@@ -45,3 +67,7 @@ app.post("/cadastrar",(request, response)=>{
 app.listen(8080, () => {
     console.log('Servidor está rodando na porta 8080');
 });
+
+
+// Status 500 - Erro interno
+// Status 200 - Sucesso
