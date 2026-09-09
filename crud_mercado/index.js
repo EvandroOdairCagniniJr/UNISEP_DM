@@ -26,13 +26,45 @@ const app = new express();
 
 app.use(express.json());
 
-app.get("/listar", (req, res)=>{
+app.get("/listar/:id", async (req, res) => {
 
-    const produtos = [];
+    const { id } = req.params;
 
-    res.send(produtos);
+    const produto = await mySql.select("*")
+        .from('produtos')
+        .where({ id });
+
+    res.send(produto);
 
 });
+
+app.post("/cadastrar", async (req, res)=>{
+
+    const { nome, preco, qtd_estoque } = req.body;
+
+    const produto = await mySql.insert({ 
+        nome,
+        preco, 
+        qtd_estoque 
+    }).into("produto");
+
+    res.send({ msg: `Produto ${nome} cadastrado com sucesso` });
+});
+
+app.put("/atualizar/:id", async (req, res) => {
+
+    const { id, nome, preco, qtd_estoque } = req.body;
+
+    const produto = await mySql('produto')
+        .where({ id })
+        .update({ 
+            nome,
+            preco, 
+            qtd_estoque 
+        });
+
+    res.send(produto);
+
 
 app.listen(8080, () =>{
     console.log("O servidor está rodando no porta 8080");
