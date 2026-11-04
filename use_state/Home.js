@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
     StyleSheet,
     Text,
@@ -7,16 +8,28 @@ import {
 } from "react-native";
 
 export default function Home() {
+
+const [usuario, setUsuario] = useState(); 
+const [senha, setSenha] = useState();
+
     return (
         <View style={styles.home}>
 
             <Text style={styles.texto}>
-                Tela Home
+                Usuario: {usuario}
+                Senha: {senha}
             </Text>
 
-            <TextInput style={styles.input}/>
-            <TextInput style={styles.input}/>
-            
+            <TextInput 
+                style={styles.input}
+                placeholder="Usuário"
+                onChangeText={setUsuario}/>
+
+            <TextInput 
+                style={styles.input}
+                placeholder="Senha"
+                onChangeText={setSenha}/>
+        
 
             <View style={styles.btn}>
                 <Button title="Entrar"/>
@@ -42,12 +55,13 @@ const styles = StyleSheet.create({
         width: 100,
         backgroundColor: '#ffff',
     },
-    input:{
+    input: {
         height: 40,
         width: 500,
         margin: 12,
         borderWidth: 1,
         padding: 10
-
     }
+
 });
+
