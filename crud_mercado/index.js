@@ -1,5 +1,6 @@
 import express, { response } from "express";
 import knex from "knex";
+import cors from "cors";
 
 const mysql = knex({
     client: "mysql2",
@@ -25,6 +26,7 @@ testaConexaoComBancoDeDados();
 const app = new express();
 
 app.use(express.json());
+app.use(cors());
 
 app.get("/listar", async (req, res) => {
 
