@@ -5,12 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --watch index.js"
+    "start":  "node --watch index.js"
   },
   "keywords": [],
-  "author": "Evandro Odair Cagnini Júnior",
+  "author": "Guilherme Pires",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "express": "^5.2.1"
   }

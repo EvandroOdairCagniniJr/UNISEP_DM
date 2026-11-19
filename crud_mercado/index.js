@@ -7,7 +7,7 @@ const mysql = knex({
     connection: {
         host: "localhost",
         user: "root",
-        password: "123456",
+        password: "",
         database: "mercado"
     }
 });
