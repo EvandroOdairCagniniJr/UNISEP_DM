@@ -6,8 +6,7 @@ import {
   View,
   ScrollView,
   TextInput,
-  TouchableOpacity,
-  Alert
+  TouchableOpacity
 } from 'react-native';
 import api from './api';
 
@@ -23,123 +22,70 @@ export default function App() {
   }, []);
 
   const carregaDados = async () => {
-    try {
-      const produto = await api.get("/listar");
-      setData(produto.data);
-    } catch (erro) {
-      Alert.alert("Erro", "Não foi possível carregar os produtos: " + erro.message);
-    }
+    const produto = await api.get("/listar");
+    setData(produto.data);
   }
 
-  const limpaFormulario = () => {
+  const salvar = async () => {
+    const produto = {
+      nome: nome,
+      preco: preco.replace(',', '.'),
+      qtd_estoque: qtdEstoque
+    };
+
+    if (id) {
+      await api.put("/atualizar", { id: id, ...produto });
+    } else {
+      await api.post("/cadastrar", produto);
+    }
+
     setId(null);
     setNome('');
     setPreco('');
     setQtdEstoque('');
-  }
-
-  const salvar = async () => {
-    if (nome.trim() === '' || preco.trim() === '') {
-      Alert.alert("Atenção", "Preencha o nome e o preço do produto.");
-      return;
-    }
-
-    const produto = {
-      nome: nome.trim(),
-      preco: Number(preco.replace(',', '.')),
-      qtd_estoque: Number(qtdEstoque) || 0
-    };
-
-    if (isNaN(produto.preco)) {
-      Alert.alert("Atenção", "Digite um preço válido. Exemplo: 12,50");
-      return;
-    }
-
-    try {
-      if (id) {
-        await api.put("/atualizar", { id, ...produto });
-      } else {
-        await api.post("/cadastrar", produto);
-      }
-      limpaFormulario();
-      carregaDados();
-    } catch (erro) {
-      Alert.alert("Erro", "Não foi possível salvar o produto: " + erro.message);
-    }
+    carregaDados();
   }
 
   const editar = (item) => {
     setId(item.id);
     setNome(item.nome);
-    setPreco(String(item.preco).replace('.', ','));
-    setQtdEstoque(String(item.qtd_estoque ?? ''));
+    setPreco(String(item.preco));
+    setQtdEstoque(String(item.qtd_estoque));
   }
 
-  const excluir = (item) => {
-    Alert.alert(
-      "Excluir produto",
-      `Deseja excluir ${item.nome}?`,
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Excluir",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await api.delete(`/excluir/${item.id}`);
-              if (id === item.id) {
-                limpaFormulario();
-              }
-              carregaDados();
-            } catch (erro) {
-              Alert.alert("Erro", "Não foi possível excluir o produto: " + erro.message);
-            }
-          }
-        }
-      ]
-    );
+  const excluir = async (id) => {
+    await api.delete("/excluir/" + id);
+    carregaDados();
   }
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.titulo}>
-        {id ? 'Editar Produto' : 'Cadastrar Produto'}
-      </Text>
+      <Text style={styles.titulo}>Cadastro de Produtos</Text>
 
-      <View style={styles.formulario}>
-        <TextInput
-          style={styles.input}
-          placeholder="Nome do produto"
-          value={nome}
-          onChangeText={setNome}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Preço (ex: 12,50)"
-          keyboardType="decimal-pad"
-          value={preco}
-          onChangeText={setPreco}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Quantidade em estoque"
-          keyboardType="number-pad"
-          value={qtdEstoque}
-          onChangeText={setQtdEstoque}
-        />
+      <TextInput
+        style={styles.input}
+        placeholder="Nome"
+        value={nome}
+        onChangeText={setNome}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Preço"
+        keyboardType="numeric"
+        value={preco}
+        onChangeText={setPreco}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Estoque"
+        keyboardType="numeric"
+        value={qtdEstoque}
+        onChangeText={setQtdEstoque}
+      />
 
-        <TouchableOpacity style={styles.botaoSalvar} onPress={salvar}>
-          <Text style={styles.textoBotao}>
-            {id ? 'Salvar alterações' : 'Cadastrar'}
-          </Text>
-        </TouchableOpacity>
-
-        {id && (
-          <TouchableOpacity style={styles.botaoCancelar} onPress={limpaFormulario}>
-            <Text style={styles.textoCancelar}>Cancelar edição</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      <TouchableOpacity style={styles.botao} onPress={salvar}>
+        <Text style={styles.textoBotao}>{id ? 'Atualizar' : 'Cadastrar'}</Text>
+      </TouchableOpacity>
 
       <Text style={styles.titulo}>Lista de Produtos</Text>
 
@@ -156,29 +102,22 @@ export default function App() {
           </View>
 
           {/* Dados */}
-          {data.length === 0 && (
-            <Text style={styles.vazio}>Nenhum produto cadastrado.</Text>
-          )}
-
           {data.map((item) => {
             return (
               <View style={styles.linha} key={item.id}>
                 <Text style={[styles.celula, styles.id]}>{item.id}</Text>
-
                 <Text style={[styles.celula, styles.descricao]}>{item.nome}</Text>
-
                 <Text style={[styles.celula, styles.preco]}>
-                  R$ {Number(item.preco).toFixed(2).replace('.', ',')}
+                  R$ {String(item.preco).replace('.', ',')}
                 </Text>
-
                 <Text style={[styles.celula, styles.estoque]}>{item.qtd_estoque}</Text>
 
-                <View style={[styles.acoes, styles.botoesLinha]}>
+                <View style={[styles.acoes, styles.botoes]}>
                   <TouchableOpacity style={styles.botaoEditar} onPress={() => editar(item)}>
-                    <Text style={styles.textoBotaoPequeno}>Editar</Text>
+                    <Text style={styles.textoBotao}>Editar</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.botaoExcluir} onPress={() => excluir(item)}>
-                    <Text style={styles.textoBotaoPequeno}>Excluir</Text>
+                  <TouchableOpacity style={styles.botaoExcluir} onPress={() => excluir(item.id)}>
+                    <Text style={styles.textoBotao}>Excluir</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -205,43 +144,26 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  formulario: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 30,
-  },
-
   input: {
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: '#CCCCCC',
     borderRadius: 8,
-    padding: 12,
-    fontSize: 15,
+    padding: 10,
     marginBottom: 10,
   },
 
-  botaoSalvar: {
+  botao: {
     backgroundColor: '#2563EB',
     borderRadius: 8,
-    padding: 14,
+    padding: 12,
     alignItems: 'center',
+    marginBottom: 30,
   },
 
   textoBotao: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 15,
-  },
-
-  botaoCancelar: {
-    padding: 12,
-    alignItems: 'center',
-  },
-
-  textoCancelar: {
-    color: '#6B7280',
-    fontSize: 14,
   },
 
   tabela: {
@@ -277,11 +199,6 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
 
-  vazio: {
-    padding: 20,
-    color: '#6B7280',
-  },
-
   id: {
     width: 50,
     textAlign: 'center',
@@ -308,29 +225,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  botoesLinha: {
+  botoes: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 6,
+    gap: 5,
   },
 
   botaoEditar: {
     backgroundColor: '#F59E0B',
-    borderRadius: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+    borderRadius: 5,
+    padding: 6,
   },
 
   botaoExcluir: {
     backgroundColor: '#DC2626',
-    borderRadius: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-  },
-
-  textoBotaoPequeno: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 12,
+    borderRadius: 5,
+    padding: 6,
   },
 });
