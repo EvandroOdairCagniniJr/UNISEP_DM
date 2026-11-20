@@ -7,7 +7,7 @@ const mysql = knex({
     connection: {
         host: "localhost",
         user: "root",
-        password: "",
+        password: "123456",
         database: "mercado"
     }
 });
@@ -84,7 +84,21 @@ app.put("/atualizar", async (req, res) => {
 
 });
 
+app.delete("/excluir/:id", async (req, res) => {
 
+    const { id } = req.params;
+
+    const produtoExcluido = await mysql('produto')
+        .where({ id })
+        .del();
+
+    if (produtoExcluido == 1) {
+        res.send({ msg: "Produto excluido com sucesso" });
+    } else {
+        res.send({ msg: "Não foi possivel excluir o produto!" });
+    }
+
+});
 
 app.listen(8080, () => {
     console.log("O servidor está rodando na porta 8080");
