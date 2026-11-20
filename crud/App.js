@@ -6,7 +6,7 @@ import {
   View,
   ScrollView,
   TextInput,
-  TouchableOpacity
+  Button
 } from 'react-native';
 import api from './api';
 
@@ -62,30 +62,32 @@ export default function App() {
     <ScrollView style={styles.container}>
       <Text style={styles.titulo}>Cadastro de Produtos</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nome"
-        value={nome}
-        onChangeText={setNome}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Preço"
-        keyboardType="numeric"
-        value={preco}
-        onChangeText={setPreco}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Estoque"
-        keyboardType="numeric"
-        value={qtdEstoque}
-        onChangeText={setQtdEstoque}
-      />
+      <View>
+        <Text style={styles.label}>Nome</Text>
+        <TextInput
+          style={styles.input}
+          value={nome}
+          onChangeText={setNome}
+        />
+        <Text style={styles.label}>Preço</Text>
+        <TextInput style={styles.input}
+          keyboardType="numeric"
+          value={preco}
+          onChangeText={setPreco}
+        />
+        <Text style={styles.label}>Estoque</Text>
+        <TextInput style={styles.input}
+          keyboardType="numeric"
+          value={qtdEstoque}
+          onChangeText={setQtdEstoque}
+        />
+      </View>
 
-      <TouchableOpacity style={styles.botao} onPress={salvar}>
-        <Text style={styles.textoBotao}>{id ? 'Atualizar' : 'Cadastrar'}</Text>
-      </TouchableOpacity>
+      <View style={styles.botao}>
+        <Button title={id ? 'Atualizar' : 'Cadastrar'} color="#fff"
+          onPress={() => { salvar() }}
+        />
+      </View>
 
       <Text style={styles.titulo}>Lista de Produtos</Text>
 
@@ -113,12 +115,16 @@ export default function App() {
                 <Text style={[styles.celula, styles.estoque]}>{item.qtd_estoque}</Text>
 
                 <View style={[styles.acoes, styles.botoes]}>
-                  <TouchableOpacity style={styles.botaoEditar} onPress={() => editar(item)}>
-                    <Text style={styles.textoBotao}>Editar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.botaoExcluir} onPress={() => excluir(item.id)}>
-                    <Text style={styles.textoBotao}>Excluir</Text>
-                  </TouchableOpacity>
+                  <View style={styles.botaoEditar}>
+                    <Button title='Editar' color="#fff"
+                      onPress={() => { editar(item) }}
+                    />
+                  </View>
+                  <View style={styles.botaoExcluir}>
+                    <Button title='Excluir' color="#fff"
+                      onPress={() => { excluir(item.id) }}
+                    />
+                  </View>
                 </View>
               </View>
             )
@@ -144,6 +150,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+
   input: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
@@ -156,14 +167,7 @@ const styles = StyleSheet.create({
   botao: {
     backgroundColor: '#2563EB',
     borderRadius: 8,
-    padding: 12,
-    alignItems: 'center',
     marginBottom: 30,
-  },
-
-  textoBotao: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
   },
 
   tabela: {
@@ -234,12 +238,10 @@ const styles = StyleSheet.create({
   botaoEditar: {
     backgroundColor: '#F59E0B',
     borderRadius: 5,
-    padding: 6,
   },
 
   botaoExcluir: {
     backgroundColor: '#DC2626',
     borderRadius: 5,
-    padding: 6,
   },
 });
