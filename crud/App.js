@@ -34,7 +34,12 @@ export default function App() {
     };
 
     if (id) {
-      await api.put("/atualizar", { id: id, ...produto });
+      await api.put("/atualizar", {
+        id: id,
+        nome: produto.nome,
+        preco: produto.preco,
+        qtd_estoque: produto.qtd_estoque
+      });
     } else {
       await api.post("/cadastrar", produto);
     }
